@@ -16,33 +16,38 @@ Server.default = ~dspServer;
 
 ~csp = ComputedSoundPrimitives_dummy.new;
 )
-
-
+~sound = SinOsc.ar (freq: 440);
 // setup the Synthesis Function
+~sound.postln;
+"Input signal: ".postln;
 (
 ~testSynthDef = SynthDef
 ( name: "echo_testSynth",
 ugenGraphFunc: // the working function of the algorithm
 {
-//var out_sig_l = ~csp.echoproc
-//( \on,
-//i_delayIntType: \cubIntDelay,
-//i_maxDelay: 1,
-//i_echoProcDefFunc: { arg a_in; a_in; },
-//a_input: SinOsc.ar (freq: 440),
-//a_delay: 0.1,
-//a_fbLevel: 0.5
+var out_sig_l = ~csp.echoproc
+(
+    i_output: \on,
+    i_delayIntType: \cubIntDelay,
+    i_maxDelay: 1,
+    i_echoProcDefFunc: { arg a_in; a_in; },
+    a_input: ~sound,
+    a_delay: 0.1,
+    a_fbLevel: 0.5,
+);
 
-var out_sig_l = SinOsc.ar (freq: 230);
-
- Out.ar (bus: ~c_AUDIO_L_BUS, channelsArray: ~c_AUDIO_ATTENUATION * out_sig_l);
-
+// Debugging: Print the output signal
+"Output signal: ".postln;
+out_sig_l.postln;
+// var out_sig_r = out_sig_l;
+// Out.ar (bus: ~c_AUDIO_L_BUS, channelsArray: ~c_AUDIO_ATTENUATION * out_sig_l);
+// Out.ar (bus: ~c_AUDIO_R_BUS, channelsArray: ~c_AUDIO_ATTENUATION * out_sig_r);
 }
- );
+);
 )
 ~csp.mce.postln;
 
-~testSynth = ~testSynthDef.play;
+~testSynth = ~echo_testSynthDef.play;
 
 ~testSynth.free;
 ~dspServer.queryAllNodes;
