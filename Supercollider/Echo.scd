@@ -14,7 +14,7 @@ Server.default = ~dspServer;
 ~csp = ComputedSoundPrimitives_dummy.new;
 
 ~currentDir = thisProcess.nowExecutingPath.dirname;
-~sound = ~grainSrcBuf = Buffer.read (~dspServer, ~currentDir +/+ "sounds/Joehoe.aiff");
+~sound = ~Buffer.read (~dspServer, ~currentDir +/+ "sounds/Joehoe.aiff");
 // setup the Synthesis Function
 "Input signal: ".postln;
 ~sound.postln;
@@ -104,7 +104,7 @@ l = Slider(w, Rect(10, 30, 280, 20))
 
 // Add delay time slider
 ~d_label = StaticText(w, Rect(10, 60, 100, 20))
-    .string_("Echo Speed");
+    .string_("Echo Delay");
 d = Slider(w, Rect(10, 80, 280, 20))
     .value_(0.5)
     .action_({ |slider|
