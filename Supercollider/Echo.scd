@@ -14,7 +14,7 @@ Server.default = ~dspServer;
 ~csp = ComputedSoundPrimitives_dummy.new;
 
 ~currentDir = thisProcess.nowExecutingPath.dirname;
-~sound = ~Buffer.read (~dspServer, ~currentDir +/+ "sounds/Joehoe.aiff");
+~sound = Buffer.read (~dspServer, ~currentDir +/+ "sounds/Joehoe.aiff");
 // setup the Synthesis Function
 "Input signal: ".postln;
 ~sound.postln;
