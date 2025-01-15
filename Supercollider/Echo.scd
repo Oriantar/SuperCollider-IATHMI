@@ -1,5 +1,5 @@
 // Boot / startup settings for SuperCollider
-(
+
 // boot a synthesis/DSP server on localhost
 
 Server.local.boot;
@@ -15,35 +15,47 @@ Server.default = ~dspServer;
 // setup the input variable of the library
 
 ~csp = ComputedSoundPrimitives_dummy.new;
-)
+
 ~sound = ~grainSrcBuf = Buffer.read (~dspServer, Platform.resourceDir +/+ "sounds/SinedPink.aiff");
 // setup the Synthesis Function
 "Input signal: ".postln;
 ~sound.postln;
+l = 0.5;
+d = 0.1;
 (
 ~testSynthDef = SynthDef(
     name: "echo_testSynth",
     ugenGraphFunc: // the working function of the algorithm
     {
-        var outL = ~csp.echoproc(
+		var inSig, outL, outR;
+
+		inSig = PlayBuf.ar(1, ~sound.bufnum, loop: 1);
+
+		outL = ~csp.echoproc(
             i_output: \on,
             i_delayIntType: \cubIntDelay,
             i_maxDelay: 1,
             i_echoProcDefFunc: { arg a_in; a_in; },
             a_input: ~sound,
-            a_delay: 0.1,
-            a_fbLevel: 0.5
+            a_delay: d,
+            a_fbLevel: l,
         );
 
 
-// Debugging: Print the output signal
-"Output signal: ".postln;
-outL.postln;
-// var outR = outL;
-// Out.ar (bus: ~c_AUDIO_L_BUS, channelsArray: ~c_AUDIO_ATTENUATION * outL);
-// Out.ar (bus: ~c*AUDIO_R_BUS, channelsArray: ~c_AUDIO_ATTENUATION * outR);
+		outR = outL;
+		Out.ar (bus: ~c_AUDIO_L_BUS, channelsArray: ~c_AUDIO_ATTENUATION * outL);
+		Out.ar (bus: ~c_AUDIO_R_BUS, channelsArray: ~c_AUDIO_ATTENUATION * outR);
 }
 );
+)
+(
+w = Window.new("Echo GUI", Rect(200,200,255,100));
+l = Slider.new(w,Rect(5,0,150,30));
+~l_label = StaticText.new(w, Rect(5, 30, 150, 20)).string_("Feedback Level");
+d = Slider.new(w,Rect(5,50,150,30));
+~d_label = StaticText.new(w, Rect(5, 80, 150, 20)).string_("Delay Level");
+c = CompositeView.new(w,Rect(20,35,100,60));
+w.front;
 )
 
 ~testSynth = ~echo_testSynthDef.play;
