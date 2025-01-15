@@ -52,6 +52,7 @@ d = 0.1;
 w = Window.new("Echo GUI", Rect(200,200,255,100));
 l = Slider.new(w,Rect(5,0,150,30));
 ~l_label = StaticText.new(w, Rect(5, 30, 150, 20)).string_("Feedback Level");
+
 d = Slider.new(w,Rect(5,50,150,30));
 ~d_label = StaticText.new(w, Rect(5, 80, 150, 20)).string_("Delay Level");
 c = CompositeView.new(w,Rect(20,35,100,60));
@@ -59,7 +60,8 @@ w.front;
 )
 
 ~testSynth = ~echo_testSynthDef.play;
-
+~testSynth.set (l, l.value);
+~testSynth.set (d, d.value);
 ~testSynth.free;
 ~dspServer.queryAllNodes;
 
