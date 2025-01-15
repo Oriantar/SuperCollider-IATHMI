@@ -1,4 +1,4 @@
-// Boot / startup settings for SuperCollider
+// Boot / startup settings for SuperCollider 2
 
 // boot a synthesis/DSP server on localhost
 
