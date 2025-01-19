@@ -1,5 +1,3 @@
-// Boot / startup settings for SuperCollider 2
-
 // boot a synthesis/DSP server on localhost
 Server.local.boot;
 ~dspServer = Server.local;
@@ -15,18 +13,15 @@ Server.default = ~dspServer;
 
 ~currentDir = thisProcess.nowExecutingPath.dirname;
 ~sound = Buffer.read (~dspServer, ~currentDir +/+ "sounds/Joehoe.aiff");
-// setup the Synthesis Function
-"Input signal: ".postln;
-~sound.postln;
 
 // Initialize global variables
 ~synthRunning = false;
-l = 0.1; // De intensiteit / hardheid van de echo
-d = 0.5; // Hoe lager hoe sneller de echo zichzelf herhaalt
+l = 0.1; // if lower the echo is more intense
+d = 0.5; // if lower than the echo is faster after the normal sound
 
 // Echo processing function implementing y[n]=x[n]+α⋅y[n−D]
 (~echoproc = { arg i_output = \on, i_delayIntType = \cubIntDelay, i_maxDelay = 1,
-    i_echoProcDefFunc, a_input, a_delay, a_fbLevel;
+i_echoProcDefFunc, a_input, a_delay, a_fbLevel;
 
     var delayedSignal;
     var processedSignal;
@@ -50,13 +45,14 @@ d = 0.5; // Hoe lager hoe sneller de echo zichzelf herhaalt
         \off, { a_input },
         { a_input } // default case
     );
+
 };)
 
 (
 ~testSynthDef = SynthDef(
-    name: "echo_testSynth",
-    ugenGraphFunc: { |feedback = 0.1, delayTime = 0.5|
-        var inSig, outL, outR;
+name: "echo_testSynth",
+ugenGraphFunc: { |feedback = 0.1, delayTime = 0.5|
+var inSig, outL, outR;
 
         // Create the input signal - mono
         inSig = PlayBuf.ar(
@@ -82,66 +78,58 @@ d = 0.5; // Hoe lager hoe sneller de echo zichzelf herhaalt
         Out.ar(~c_AUDIO_L_BUS, ~c_AUDIO_ATTENUATION * outL);
         Out.ar(~c_AUDIO_R_BUS, ~c_AUDIO_ATTENUATION * outR);
     }
+
 ).add;
 )
 
-// Simple GUI setup
+// GUI setup
 (
 // Create window
 w = Window("Echo Controls", Rect(200, 200, 300, 150));
 
 // Add feedback level slider
-~l_label = StaticText(w, Rect(10, 10, 100, 20))
-    .string_("Echo Intensity");
+~l*label = StaticText(w, Rect(10, 10, 100, 20))
+.string*("Echo Intensity");
 l = Slider(w, Rect(10, 30, 280, 20))
-    .value_(0.1)
-    .action_({ |slider|
-        if(~synthRunning, {
-            ~testSynth.set(\feedback, slider.value);
-            "Feedback set to: ".post; slider.value.postln;
-        });
-    });
+.value*(0.1)
+.action*({ |slider|
+if(~synthRunning, {
+~testSynth.set(\feedback, slider.value);
+"Feedback set to: ".post; slider.value.postln;
+});
+});
 
 // Add delay time slider
-~d_label = StaticText(w, Rect(10, 60, 100, 20))
-    .string_("Echo Delay");
+~d*label = StaticText(w, Rect(10, 60, 100, 20))
+.string*("Echo Delay");
 d = Slider(w, Rect(10, 80, 280, 20))
-    .value_(0.5)
-    .action_({ |slider|
-        if(~synthRunning, {
-            ~testSynth.set(\delayTime, slider.value);
-            "Delay time set to: ".post; slider.value.postln;
-        });
-    });
+.value*(0.5)
+.action*({ |slider|
+if(~synthRunning, {
+~testSynth.set(\delayTime, slider.value);
+"Delay time set to: ".post; slider.value.postln;
+});
+});
 
-// Create play button
-~playButton = Button(w, Rect(10, 110, 135, 30))
-    .states_([
-        ["Play", Color.black, Color.green(0.7)],
-        ["Playing", Color.white, Color.green(0.9)]
-    ])
-    .action_({ |button|
-        if(button.value == 1, {
-            ~testSynth.free;  // Free any existing synth first
-            ~testSynth = Synth("echo_testSynth", [
-                \feedback, l.value,
-                \delayTime, d.value
-            ]);
-            ~synthRunning = true;
-        }, {
-            ~testSynth.free;
-            ~synthRunning = false;
-        });
-    });
-
-// Create stop button
-Button(w, Rect(155, 110, 135, 30))
-    .states_([["Stop", Color.white, Color.red(0.7)]])
-    .action_({
-        ~testSynth.free;
-        ~synthRunning = false;
-        ~playButton.value = 0;
-    });
+// Create play/stop button
+~playButton = Button(w, Rect(10, 110, 285, 30))
+.states*([
+["Play", Color.black, Color.green(0.7)],
+["Stop", Color.white, Color.red(0.9)]
+])
+.action*({ |button|
+if(button.value == 1, {
+~testSynth.free; // Free any existing synth first
+~testSynth = Synth("echo_testSynth", [
+\feedback, l.value,
+\delayTime, d.value
+]);
+~synthRunning = true;
+}, {
+~testSynth.free;
+~synthRunning = false;
+});
+});
 
 w.front;
 )
