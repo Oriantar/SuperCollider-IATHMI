@@ -88,48 +88,51 @@ var inSig, outL, outR;
 w = Window("Echo Controls", Rect(200, 200, 300, 150));
 
 // Add feedback level slider
-~l*label = StaticText(w, Rect(10, 10, 100, 20))
-.string*("Echo Intensity");
+~l_label = StaticText(w, Rect(10, 10, 100, 20))
+    .string_("Echo Intensity");
 l = Slider(w, Rect(10, 30, 280, 20))
-.value*(0.1)
-.action*({ |slider|
-if(~synthRunning, {
-~testSynth.set(\feedback, slider.value);
-"Feedback set to: ".post; slider.value.postln;
-});
-});
+    .value_(0.1)
+    .action_({ |slider|
+        if(~synthRunning, {
+            ~testSynth.set(\feedback, slider.value);
+            "Feedback set to: ".post; slider.value.postln;
+        });
+    });
 
 // Add delay time slider
-~d*label = StaticText(w, Rect(10, 60, 100, 20))
-.string*("Echo Delay");
+~d_label = StaticText(w, Rect(10, 60, 100, 20))
+    .string_("Echo Delay");
 d = Slider(w, Rect(10, 80, 280, 20))
-.value*(0.5)
-.action*({ |slider|
-if(~synthRunning, {
-~testSynth.set(\delayTime, slider.value);
-"Delay time set to: ".post; slider.value.postln;
-});
-});
+    .value_(0.5)
+    .action_({ |slider|
+        if(~synthRunning, {
+            ~testSynth.set(\delayTime, slider.value);
+            "Delay time set to: ".post; slider.value.postln;
+        });
+    });
 
-// Create play/stop button
-~playButton = Button(w, Rect(10, 110, 285, 30))
-.states*([
-["Play", Color.black, Color.green(0.7)],
-["Stop", Color.white, Color.red(0.9)]
-])
-.action*({ |button|
-if(button.value == 1, {
-~testSynth.free; // Free any existing synth first
-~testSynth = Synth("echo_testSynth", [
-\feedback, l.value,
-\delayTime, d.value
-]);
-~synthRunning = true;
-}, {
-~testSynth.free;
-~synthRunning = false;
-});
-});
+// Create play button
+~playButton = Button(w, Rect(10, 110, 280, 30))
+    .states_([
+        ["Play", Color.black, Color.green(0.7)],
+        ["Stop", Color.white, Color.red(0.9)]
+    ])
+    .action_({ |button|
+        if(button.value == 1, {
+            ~testSynth.free;  // Free any existing synth first
+            ~testSynth = Synth("echo_testSynth", [
+                \feedback, l.value,
+                \delayTime, d.value
+            ]);
+            ~synthRunning = true;
+        }, {
+            ~testSynth.free;
+            ~synthRunning = false;
+        });
+    });
+
+// Create stop button
+
 
 w.front;
 )
